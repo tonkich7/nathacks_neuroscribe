@@ -3,6 +3,9 @@ from brainflow.data_filter import DataFilter, FilterTypes, AggOperations
 import numpy as np
 import random
 import time
+import glob
+import cv2
+import sys
 
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1 
@@ -15,13 +18,19 @@ POSITIVE_VAL = 1000
 NEUTRAL_VAL = 2000
 NEGATIVE_VAL = 3000
 
+stimulus_map = {
+    'positive': 1000,
+    'neutral': 2000,
+    'negative': 3000
+}
+
 stimuli_messages = {
     1000: 'Think positive :)',
     2000: 'Think neutral :|',
     3000: 'Think negative :('
 }
 
-def run_experiment(board):
+def run_experiment(board, image_dict):
     #put in NUM_SAMPLES_EACH stimuli for each label before shuffling
     stimuli = [i for i in (POSITIVE_VAL, NEUTRAL_VAL, NEGATIVE_VAL) for j in range(NUM_SAMPLES_EACH)]
     #shuffles the labels to randomize order of stimuli shown
@@ -34,9 +43,16 @@ def run_experiment(board):
     time.sleep(SAMPLE_SECONDS)
 
     for stimulus in stimuli:
-        print(stimuli_messages[stimulus], '\n') #show stimulus
         board.insert_marker(stimulus) #insert label into stream
+        print(stimuli_messages[stimulus], '\n') #show stimulus
+        random_image = random.choice(image_dict[stimulus])
+        print(random_image)
+        img = cv2.imread(random_image, cv2.IMREAD_ANYCOLOR)
+        cv2.imshow("Image", img)
+        cv2.waitKey(0)
+        sys.exit()
         time.sleep(SAMPLE_SECONDS) #wait some time for data collection
+        cv2.destroyAllWindows()
 
     board.stop_stream()
     data = board.get_board_data()
@@ -63,9 +79,23 @@ def get_board(debug=False):
     board.release_session()
     return board
 
+def build_image_dict():
+    image_dict = {}
+    for folder_name in ('positive', 'neutral', 'negative'):
+        #file_path = "./images/" + folder_name + "/*.jpg"
+        images = glob.glob("./images/" + folder_name + "/*.jpg")
+        image_dict[stimulus_map[folder_name]] = images
+    return image_dict
+
+
 def main():
+    print("Setting up board...")
     board = get_board()
-    data = run_experiment(board)
+    print("Building image dictionary...")
+    image_dict = build_image_dict()
+    print(image_dict)
+    print("Finished building image dictionary.")
+    data = run_experiment(board, image_dict)
     file_name = FILE_PATH + str(int(time.time()))
     np.save(file_name, data)
     print("Saved", file_name)
