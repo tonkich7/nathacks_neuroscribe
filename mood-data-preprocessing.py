@@ -3,7 +3,7 @@ import mne
 import numpy as np
 
 BOARD_ID = 1 #ganglion board id
-FILE_PATH = './experiment_data/mood_1700195301.npy'
+FILE_PATH = './experiment_data/mood_1700249413.npy'
 
 STIM_MAP = {'positive': 1000, 'neutral': 2000, 'negative': 3000}
 
@@ -45,7 +45,12 @@ def build_epochs(raw, filtered_data, stimulus_map, ch_names):
 def main():
     #turns brainflow data into mne and gets epochs
     eeg_channels, sfreq, ch_names, event_channel = get_board_info(BOARD_ID)
+    print("eeg_channels:", eeg_channels)
+    print("event channel:",event_channel)
     data = np.load(FILE_PATH)
+    print("data.shape:",data.shape)
+    print(data[31])
+    event_channel=31
     raw = get_raw_mne(data, eeg_channels, sfreq, ch_names, event_channel)
     raw.plot_psd(average=True) #figure 1
     filtered_data = preprocess_raw(raw)
