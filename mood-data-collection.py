@@ -6,13 +6,16 @@ import time
 import glob
 import cv2
 import sys
+import tkinter as tk
+from PIL import ImageTk, Image
 
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1 
 SERIAL_PORT = 'COM8'
 NUM_SAMPLES_EACH = 1 #how many samples of each label should be gathered in the baseline step
-SAMPLE_SECONDS = 2 #how many seconds of data should be gathered for each sample
+SAMPLE_SECONDS = 4 #how many seconds of data should be gathered for each sample
 FILE_PATH = './experiment_data/mood_'
+WORD_ORDER_PATH = './experiment_data/mood_images_'
 
 POSITIVE_VAL = 1000
 NEUTRAL_VAL = 2000
@@ -30,6 +33,13 @@ stimuli_messages = {
     3000: 'Think negative :('
 }
 
+def update_image(image_window, panel, image_path):
+    img = ImageTk.PhotoImage(Image.open(image_path))
+    panel.configure(image=img)
+    panel.image = img
+    image_window.update_idletasks()
+    image_window.update()
+
 def run_experiment(board, image_dict):
     #put in NUM_SAMPLES_EACH stimuli for each label before shuffling
     stimuli = [i for i in (POSITIVE_VAL, NEUTRAL_VAL, NEGATIVE_VAL) for j in range(NUM_SAMPLES_EACH)]
@@ -42,23 +52,30 @@ def run_experiment(board, image_dict):
     board.start_stream(450000)
     time.sleep(SAMPLE_SECONDS)
 
+    image_order = []
+
+    image_window = tk.Tk()
+    fixation_img = ImageTk.PhotoImage(Image.open("./images/fixation.png"))
+    panel = tk.Label(image_window, image=fixation_img)
+    panel.pack(side="bottom", fill="both", expand="yes")
+    image_window.update_idletasks()
+    image_window.update()
+
     for stimulus in stimuli:
+        time.sleep(SAMPLE_SECONDS)
         board.insert_marker(stimulus) #insert label into stream
-        print(stimuli_messages[stimulus], '\n') #show stimulus
+        print(stimulus) #show stimulus
         random_image = random.choice(image_dict[stimulus])
-        print(random_image)
-        img = cv2.imread(random_image, cv2.IMREAD_ANYCOLOR)
-        cv2.imshow("Image", img)
-        cv2.waitKey(0)
-        sys.exit()
+        image_order.append(random_image)
+        update_image(image_window, panel, random_image)
         time.sleep(SAMPLE_SECONDS) #wait some time for data collection
-        cv2.destroyAllWindows()
+        update_image(image_window, panel, "./images/fixation.png")
 
     board.stop_stream()
     data = board.get_board_data()
     board.release_session()
 
-    return data
+    return data, np.array(image_order)
 
 def get_board(debug=False):
     if (debug):
@@ -93,11 +110,13 @@ def main():
     board = get_board()
     print("Building image dictionary...")
     image_dict = build_image_dict()
-    print(image_dict)
     print("Finished building image dictionary.")
-    data = run_experiment(board, image_dict)
+    data, image_order = run_experiment(board, image_dict)
     file_name = FILE_PATH + str(int(time.time()))
     np.save(file_name, data)
-    print("Saved", file_name)
+    print("Saved", file_name + ".npy")
+    word_file_name = WORD_ORDER_PATH + str(int(time.time()))
+    np.save(word_file_name, image_order)
+    print("Saved", word_file_name + ".npy")
 
 main()
