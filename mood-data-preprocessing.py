@@ -1,12 +1,62 @@
 from brainflow.board_shim import BoardShim
 import mne
 import numpy as np
+import pywt
+import pickle
 
 BOARD_ID = 1 #ganglion board id
 FILE_PATH = './experiment_data/mood_'
 FILE_TIME = '1700266292'
 
 STIM_MAP = {'positive': 1000, 'neutral': 2000, 'negative': 3000}
+
+def get_fft_features(epochs):
+    samples = epochs.get_data()
+    freqs = np.fft.fftfreq(samples.shape[2])
+    fft_features = []
+    for sample in samples:
+        sample_features = []
+        for channel_data in sample:
+            channel_fft = np.fft.fft(channel_data)
+            dom_power = np.max(np.square(np.abs(channel_fft)))
+            sample_features.append(dom_power)
+            dom_freq = freqs[np.argmax(np.square(np.abs(channel_fft)))]
+            sample_features.append(dom_freq)
+        fft_features.append(sample_features)
+    return fft_features
+
+def get_wavelet_coefs(epochs):
+    samples = epochs.get_data()
+    wavelet_coefs = []
+    for sample in samples:
+        sample_features = []
+        for channel_data in sample:
+            coefs = pywt.wavedec(channel_data, 'sym20', level=5)
+            flat_coefs = []
+            for coef_array in coefs[:len(coefs)-2]:
+                flat_coefs += list(coef_array)
+            sample_features.append(flat_coefs)
+        wavelet_coefs.append(sample_features)
+    return np.array(wavelet_coefs)
+
+def get_wavelet_features(epochs):
+    samples = epochs.get_data()
+    wavelet_features = []
+    for sample in samples:
+        sample_features = []
+        for channel_data in sample:
+            coefs = pywt.wavedec(channel_data, 'db8', level=8)
+            alpha_power = np.mean(np.square(np.abs(coefs[2]))) #gets the squared mean of the D7 coefficient
+            sample_features.append(alpha_power)
+            delta_power = np.mean(np.square(np.abs(coefs[0]))) #gets the squared mean of the A coefficient
+            sample_features.append(delta_power)
+            sum_detail_energy = 0
+            for dn in coefs[1:]:
+                sum_detail_energy += np.mean(np.square(np.abs(dn)))
+            total_wav_energy = sum_detail_energy/len(coefs[1:]) + delta_power
+            sample_features.append(total_wav_energy)
+        wavelet_features.append(sample_features)
+    return wavelet_features
 
 def get_raw_mne(data, eeg_channels, sfreq, ch_names, event_channel):
     ch_types = ['eeg'] * len(eeg_channels)
@@ -62,13 +112,26 @@ def main():
     pos_avg = epochs['positive'].average()
     neut_avg = epochs['neutral'].average()
     neg_avg = epochs['negative'].average()
-    pos_avg.plot(spatial_colors=True) #figure 3
-    neut_avg.plot(spatial_colors=True) #figure 4
-    neg_avg.plot(spatial_colors=True) #figure 5
+    # pos_avg.plot(spatial_colors=True) #figure 3
+    # neut_avg.plot(spatial_colors=True) #figure 4
+    # neg_avg.plot(spatial_colors=True) #figure 5
     pos_vs_neg = mne.combine_evoked([pos_avg, neg_avg], weights=[1,-1])
-    pos_vs_neg.plot(spatial_colors=True) #figure 6
+    # pos_vs_neg.plot(spatial_colors=True) #figure 6
     pos_vs_neg.plot_joint() #figure 7
 
-    epochs.save("./experiment_data/mood_epochs_" + FILE_TIME)
+    epochs.save("./experiment_data/mood_epochs_" + FILE_TIME, overwrite=True)
+
+    epochs.load_data()
+    resampled_epochs = epochs.resample(sfreq=173.61)
+    wavelet_coefs = get_wavelet_coefs(resampled_epochs)
+    print(wavelet_coefs.shape)
+    # fft_features = get_fft_features(resampled_epochs)
+    # wavelet_features = get_wavelet_features(resampled_epochs)
+    # frequency_features = np.concatenate((np.array(fft_features), np.array(wavelet_features)), axis=1)
+    # print(frequency_features.shape)
+    y = epochs.events[:,2]
+    
+    with open("./experiment_data/mood_features_labels_" + FILE_TIME, 'wb') as f:
+        pickle.dump((wavelet_coefs, y), f)
 
 main()
