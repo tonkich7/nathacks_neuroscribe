@@ -12,7 +12,7 @@ from PIL import ImageTk, Image
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1 
 SERIAL_PORT = 'COM8'
-NUM_SAMPLES_EACH = 1 #how many samples of each label should be gathered in the baseline step
+NUM_SAMPLES_EACH = 25 #how many samples of each label should be gathered in the baseline step
 SAMPLE_SECONDS = 4 #how many seconds of data should be gathered for each sample
 FILE_PATH = './experiment_data/mood_'
 WORD_ORDER_PATH = './experiment_data/mood_images_'
@@ -55,6 +55,7 @@ def run_experiment(board, image_dict):
     image_order = []
 
     image_window = tk.Tk()
+    image_window.geometry("1920x1080")
     fixation_img = ImageTk.PhotoImage(Image.open("./images/fixation.png"))
     panel = tk.Label(image_window, image=fixation_img)
     panel.pack(side="bottom", fill="both", expand="yes")

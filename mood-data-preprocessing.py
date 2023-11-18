@@ -3,7 +3,8 @@ import mne
 import numpy as np
 
 BOARD_ID = 1 #ganglion board id
-FILE_PATH = './experiment_data/mood_1700249413.npy'
+FILE_PATH = './experiment_data/mood_'
+FILE_TIME = '1700266292'
 
 STIM_MAP = {'positive': 1000, 'neutral': 2000, 'negative': 3000}
 
@@ -47,10 +48,10 @@ def main():
     eeg_channels, sfreq, ch_names, event_channel = get_board_info(BOARD_ID)
     print("eeg_channels:", eeg_channels)
     print("event channel:",event_channel)
-    data = np.load(FILE_PATH)
+    data = np.load(FILE_PATH + FILE_TIME + ".npy")
     print("data.shape:",data.shape)
-    print(data[31])
-    event_channel=31
+    #print(data[31])
+    #event_channel=31
     raw = get_raw_mne(data, eeg_channels, sfreq, ch_names, event_channel)
     raw.plot_psd(average=True) #figure 1
     filtered_data = preprocess_raw(raw)
@@ -67,5 +68,7 @@ def main():
     pos_vs_neg = mne.combine_evoked([pos_avg, neg_avg], weights=[1,-1])
     pos_vs_neg.plot(spatial_colors=True) #figure 6
     pos_vs_neg.plot_joint() #figure 7
+
+    epochs.save("./experiment_data/mood_epochs_" + FILE_TIME)
 
 main()
