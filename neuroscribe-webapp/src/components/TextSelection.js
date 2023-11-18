@@ -2,48 +2,40 @@ import React, { useState, useEffect } from 'react';
 import '../styles/TextSelection.css';
 
 function TextSelection({ mood }) {
-  const PositiveSelections1 = {
-    38: "I",    // Up Arrow
-    40: "They",  // Down Arrow
+  // Define the selections for each mood
+  const selections = {
+    Positive: [
+      { 38: "I", 40: "They" }, // Box 1
+      { 38: "Next", 40: "Work" }, // Box 2
+      // Add additional selection pairs for Boxes 3, 4, and 5
+      { 38: "Here", 40: "Now" }, // Box 3
+      { 38: "Always", 40: "Never" }, // Box 4
+      { 38: "Yes", 40: "No" }, // Box 5
+    ],
+    Negative: [
+        { 38: "NEG", 40: "They" }, // Box 1
+        { 38: "Next", 40: "Work" }, // Box 2
+        // Add additional selection pairs for Boxes 3, 4, and 5
+        { 38: "Here", 40: "Now" }, // Box 3
+        { 38: "Always", 40: "Never" }, // Box 4
+        { 38: "Yes", 40: "No" }, // Box 5
+    ],
+    Neutral: [
+        { 38: "NEU", 40: "They" }, // Box 1
+        { 38: "Next", 40: "Work" }, // Box 2
+        // Add additional selection pairs for Boxes 3, 4, and 5
+        { 38: "Here", 40: "Now" }, // Box 3
+        { 38: "Always", 40: "Never" }, // Box 4
+        { 38: "Yes", 40: "No" }, // Box 5
+    ]
   };
 
-  const positiveSelections2 = {
-    38: "Next",
-    40: "Work",
-  };
-
-  const NegativeSelections1 = {
-    38: "Bad",    // Up Arrow
-    40: "-",  // Down Arrow
-  };
-
-  const [currentSelection1, setCurrentSelection1] = useState("ㅤ ㅤ ㅤ ㅤ ");
-  const [currentSelection2, setCurrentSelection2] = useState("ㅤ ㅤ ㅤ ㅤ ");
-  const [firstBoxLocked, setFirstBoxLocked] = useState(false);
-  const [secondBoxLocked, setSecondBoxLocked] = useState(false);
-
-  let firstStarterSentence, secondStarterSentence;
-
-  if (mood === 'Positive') {
-    firstStarterSentence = PositiveSelections1;
-    secondStarterSentence = positiveSelections2;
-  } else if (mood === 'Negative') {
-    firstStarterSentence = NegativeSelections1;
-    secondStarterSentence = positiveSelections2;
-  } else if (mood === "Neutral") {
-    firstStarterSentence = PositiveSelections1;
-    secondStarterSentence = PositiveSelections1;
-  }
+  // States for the current selections and locks for each box
+  const [currentSelections, setCurrentSelections] = useState(Array(5).fill("ㅤ"));
+  const [boxesLocked, setBoxesLocked] = useState(Array(5).fill(false));
 
   // Determine the color based on the mood
-  let boxColor;
-  if (mood === 'Positive') {
-    boxColor = '#ffdb5d'; // Color for Positive mood
-  } else if (mood === 'Negative') {
-    boxColor = '#72f3f3'; // Color for Negative mood
-  } else if (mood === 'Neutral') {
-    boxColor = '#FFFFFF'; // Color for Neutral mood
-  }
+  const boxColor = mood === 'Positive' ? '#ffdb5d' : mood === 'Negative' ? '#72f3f3' : '#FFFFFF';
 
   // Style object for the selection boxes
   const selectionBoxStyle = {
@@ -51,56 +43,61 @@ function TextSelection({ mood }) {
     color: 'rgb(19, 20, 20)',
     border: '2px solid #000',
     borderRadius: '15px',
-    padding: '5px 10px',    
+    padding: '5px 10px',
     display: 'inline-block',
     margin: '5px',
-    marginLeft: mood === 'Positive' ? '2.4rem' : '4.5rem', // Adjust margin based on mood
-    marginBottom: mood === 'Positive' ? '1rem' : undefined,
-    marginTop: mood === 'Neutral' ? '1rem' : undefined,
+    marginLeft: '0.4rem',
+    marginBottom: '2.4rem',
+    marginTop: '2.2rem',
   };
 
   const handleKeyDown = (e) => {
-    if (!firstBoxLocked) {
-      if (firstStarterSentence[e.keyCode]) {
-        setCurrentSelection1(firstStarterSentence[e.keyCode]);
-      }
-      if (e.keyCode === 37) { // Left Arrow
-        setFirstBoxLocked(true);
-      }
-    } else if (!secondBoxLocked) {
-      if (secondStarterSentence[e.keyCode]) {
-        setCurrentSelection2(secondStarterSentence[e.keyCode]);
-      }
-      if (e.keyCode === 37) { // Left Arrow
-        setSecondBoxLocked(true);
-      }
+    // Find the first box that is not locked
+    const boxToChange = boxesLocked.findIndex(locked => !locked);
+    if (boxToChange === -1) return; // All boxes are locked
+
+    // Up Arrow (38) and Down Arrow (40) to change the selection
+    if (e.keyCode === 38 || e.keyCode === 40) {
+      setCurrentSelections(current => 
+        current.map((sel, index) => 
+          index === boxToChange ? selections[mood][boxToChange][e.keyCode] : sel
+        )
+      );
+    }
+
+    // Left Arrow (37) to lock the current box and move to the next one
+    if (e.keyCode === 37) {
+      setBoxesLocked(current => 
+        current.map((locked, index) => 
+          index === boxToChange ? true : locked
+        )
+      );
     }
   };
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [firstBoxLocked, secondBoxLocked]);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [boxesLocked, selections, mood]);
 
   return (
     <div className='text-select-container'>
-        <div className='mood-text-container'>
-            <div className='mood-text'>
-                {/* {mood} */}
-            </div>
-        </div>
-        <div className='selections-container'>
-            <div style={selectionBoxStyle} className='selection-box-above'>{firstStarterSentence[38]}</div>
-            <div className='mood-text-container'>
-                <div className='sentences'>
-                    <div className="selection-box"><u className='underline'>{currentSelection1}</u></div> want(s) 
-                    {firstBoxLocked && <div className="selection-box"><u className='underline'>{currentSelection2}</u></div>}
+      {/* ... mood display ... */}
+      <div className='selections-container' style={{ display: 'flex' }}>
+        {selections[mood].map((boxSelections, index) => (
+          <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            {index <= boxesLocked.lastIndexOf(true) + 1 && (
+              <>
+                <div style={selectionBoxStyle} className='selection-box-above'>{boxSelections[38]}</div>
+                <div className="selection-box">
+                  <u className='underline'>{currentSelections[index]}</u>
                 </div>
-            </div>
-            <div style={selectionBoxStyle} className='selection-box-below'>{firstStarterSentence[40]}</div>
-        </div>
+                <div style={selectionBoxStyle} className='selection-box-below'>{boxSelections[40]}</div>
+              </>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
