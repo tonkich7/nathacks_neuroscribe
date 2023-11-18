@@ -10,10 +10,11 @@ import tkinter as tk
 from PIL import ImageTk, Image
 
 BOARD_ID = 1 
-SYNTHETIC_BOARD_ID = -1 
+SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-NUM_SAMPLES_EACH = 25 #how many samples of each label should be gathered in the baseline step
-SAMPLE_SECONDS = 4 #how many seconds of data should be gathered for each sample
+MIN_SAMPLES_EACH = 30 #how many samples of each label should be gathered in the baseline step
+MIN_SAMPLES_TOTAL = 100
+SAMPLE_SECONDS = 3 #how many seconds of data should be gathered for each sample
 FILE_PATH = './experiment_data/mood_'
 WORD_ORDER_PATH = './experiment_data/mood_images_'
 
@@ -26,6 +27,8 @@ stimulus_map = {
     'neutral': 2000,
     'negative': 3000
 }
+
+stimulus_counts = [0, 0, 0] #positive, neutral, negative
 
 stimuli_messages = {
     1000: 'Think positive :)',
@@ -40,12 +43,7 @@ def update_image(image_window, panel, image_path):
     image_window.update_idletasks()
     image_window.update()
 
-def run_experiment(board, image_dict):
-    #put in NUM_SAMPLES_EACH stimuli for each label before shuffling
-    stimuli = [i for i in (POSITIVE_VAL, NEUTRAL_VAL, NEGATIVE_VAL) for j in range(NUM_SAMPLES_EACH)]
-    #shuffles the labels to randomize order of stimuli shown
-    random.shuffle(stimuli)
-
+def run_experiment(board, board_id, images):
     print("Starting experiment\n")
 
     board.prepare_session()
@@ -53,32 +51,47 @@ def run_experiment(board, image_dict):
     time.sleep(SAMPLE_SECONDS)
 
     image_order = []
+    mood_order = []
+    num_images = 0
 
     image_window = tk.Tk()
-    image_window.geometry("1920x1080")
+    image_window.geometry("960x1080")
     fixation_img = ImageTk.PhotoImage(Image.open("./images/fixation.png"))
     panel = tk.Label(image_window, image=fixation_img)
-    panel.pack(side="bottom", fill="both", expand="yes")
+    panel.pack(side="left", fill=None, expand=False)
     image_window.update_idletasks()
     image_window.update()
 
-    for stimulus in stimuli:
+    while min(stimulus_counts) < MIN_SAMPLES_EACH or num_images < MIN_SAMPLES_TOTAL:
         time.sleep(SAMPLE_SECONDS)
-        board.insert_marker(stimulus) #insert label into stream
-        print(stimulus) #show stimulus
-        random_image = random.choice(image_dict[stimulus])
+        board.insert_marker(1000) #insert label into stream
+        random_image = random.choice(images)
         image_order.append(random_image)
         update_image(image_window, panel, random_image)
         time.sleep(SAMPLE_SECONDS) #wait some time for data collection
         update_image(image_window, panel, "./images/fixation.png")
+        print("How did that image make you feel?")
+        response = None
+        while response not in list(range(1,4)):
+            try:
+                response = int(input("Positive = 1, Neutral = 2, Negative = 3\nResponse: "))
+            except:
+                pass
+        mood_order.append(response)
+        stimulus_counts[response-1] += 1
+        num_images += 1
 
     board.stop_stream()
     data = board.get_board_data()
     board.release_session()
+    event_channel = BoardShim.get_marker_channel(board_id)
+    stim_indices = np.argwhere(data[event_channel]).flatten()
+    data[event_channel, stim_indices] = np.array(mood_order)
 
     return data, np.array(image_order)
 
 def get_board(debug=False):
+    board_id = None
     if (debug):
         BoardShim.enable_dev_board_logger()
     else:
@@ -88,14 +101,16 @@ def get_board(debug=False):
     board = BoardShim(BOARD_ID, params)
     try:
         board.prepare_session()
+        board_id = BOARD_ID
         print("Board correctly prepared.")
     except Exception as e:
         print(e)
         board = BoardShim(SYNTHETIC_BOARD_ID, params)
         board.prepare_session()
+        board_id = SYNTHETIC_BOARD_ID
         print("Board failed to prepare, prepared synthetic board instead.")
     board.release_session()
-    return board
+    return board, board_id
 
 def build_image_dict():
     image_dict = {}
@@ -108,11 +123,11 @@ def build_image_dict():
 
 def main():
     print("Setting up board...")
-    board = get_board()
+    board, board_id = get_board()
     print("Building image dictionary...")
-    image_dict = build_image_dict()
+    images = glob.glob("./images/all/*.jpg")
     print("Finished building image dictionary.")
-    data, image_order = run_experiment(board, image_dict)
+    data, image_order = run_experiment(board, board_id, images)
     file_name = FILE_PATH + str(int(time.time()))
     np.save(file_name, data)
     print("Saved", file_name + ".npy")

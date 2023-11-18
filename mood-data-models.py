@@ -12,7 +12,8 @@ class LinearModel(nn.Module):
         self.soft = nn.Softmax(dim=0)
 
     def forward(self, X):
-        out = self.linear(X)
+        out = X.view(X.shape[0],-1)
+        out = self.linear(out)
         return out
 
 class NeuralNet(nn.Module):
@@ -28,6 +29,28 @@ class NeuralNet(nn.Module):
         out = self.tanh(self.linear1(X))
         out = self.linear2(out)
         return out
+
+class SimpleCNN(nn.Module):
+    def __init__(self, num_channels, num_classes):
+        super(SimpleCNN, self).__init__()
+        self.relu = nn.ReLU()
+        self.dropout = nn.Dropout(p=0.5)
+        self.conv1 = nn.Conv1d(num_channels, 8, 5)
+        self.conv2 = nn.Conv1d(8, 8, 3)
+        self.max_pool = nn.MaxPool1d(2)
+        self.fc1 = nn.Linear(968, 100)
+        self.fc2 = nn.Linear(100, num_classes)
+
+    def forward(self, X):
+        out = self.relu(self.conv1(X))
+        out = self.relu(self.conv2(out))
+        out = self.dropout(out)
+        out = self.max_pool(out)
+        out = out.view(out.shape[0],-1)
+        out = self.relu(self.fc1(out))
+        out = self.fc2(out)
+        return out
+        
 
 #1d cnn based on paper here: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6453988/
 class WaveletCNN(nn.Module):

@@ -14,11 +14,12 @@ from mne.decoding import (
     Vectorizer
 )
 
-FILE_PATH = './experiment_data/mood_features_labels_'
-FILE_TIME = '1700266292'
+#FILE_PATH = './experiment_data/mood_features_labels_'
+FILE_PATH = './experiment_data/mood_epochs_'
+FILE_TIME = '1700339712'
 
 NUM_FOLDS = 5
-NUM_EVAL_ITERS = 10
+NUM_EVAL_ITERS = 1
 
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
@@ -27,7 +28,7 @@ def unison_shuffled_copies(a, b):
 
 def one_hot_encode(y):
     labels = np.unique(y)
-    y_indices = ((y / 1000) - 1).astype(int) #maps 1000,2000,3000 to 0,1,2
+    y_indices = (y - 1).astype(int) #maps 1,2,3 to 0,1,2
     one_hot_y = np.zeros((y.shape[0], labels.shape[0]))
     for row in range(y.shape[0]):
         one_hot_y[row,y_indices[row]] += 1
@@ -48,8 +49,8 @@ def build_folds(X, y, num_folds=5):
             y_folds[fold_count, start_idx:end_idx] = y[split]
     return X_folds, y_folds        
 
-def train_model(model, X, y, alpha=1e-3, num_epochs=25, batch_size=5):
-    optimizer = torch.optim.SGD(model.parameters(), lr=alpha)
+def train_model(model, X, y, alpha=1e-3, num_epochs=25, batch_size=5, regularization=1e-5):
+    optimizer = torch.optim.Adam(model.parameters(), alpha, weight_decay=regularization)
     loss_fn = nn.CrossEntropyLoss()
     for epoch in range(num_epochs):
         X, y = unison_shuffled_copies(X, y)
@@ -66,13 +67,13 @@ def train_model(model, X, y, alpha=1e-3, num_epochs=25, batch_size=5):
             loss = loss_fn(preds, y_batch)
             loss.backward()
             optimizer.step()
-            if epoch % 10 == 0 or epoch == num_epochs-1:
+            if epoch % 1 == 0 or epoch == num_epochs-1:
                 max_preds = torch.argmax(preds, dim=1)
                 max_labels = torch.argmax(y_batch, dim=1)
                 batch_accuracy = torch.sum(max_preds == max_labels)/y_batch.shape[0]
                 epoch_accuracy += batch_accuracy.item()
-        if epoch % 10 == 0 or epoch == num_epochs-1:
-            print("\tEpoch: ", epoch, ", Train Loss: ", loss.item(), "Train Accuracy:", epoch_accuracy/math.floor(X.shape[0]/batch_size))
+        # if epoch % 1 == 0 or epoch == num_epochs-1:
+        #     print("\tEpoch: ", epoch, ", Train Loss: ", loss.item(), "Train Accuracy:", epoch_accuracy/math.floor(X.shape[0]/batch_size))
 
 def cross_val(X, y, epoch_info):
     print("Building folds...")
@@ -102,7 +103,7 @@ def cross_val(X, y, epoch_info):
         X_train_scaled = scaler.fit_transform(X_train)
         X_train_vectorized = vectorizer.fit_transform(X_train_scaled)
 
-        model = models.LinearModel(X_train_vectorized.shape[1], y.shape[1])
+        model = models.LinearModel(X_train_vectorized.shape[1]*X_train_vectorized.shape[2], y.shape[1])
         train_model(model, torch.tensor(X_train_vectorized).float(), torch.tensor(y_train).float())
 
         #get test loss and accuracy from model
@@ -124,18 +125,24 @@ def cross_val(X, y, epoch_info):
     print("Cross-validation Accuracy:", cross_val_acc)
     return cross_val_acc
 
-def leave_one_out(X, y, alpha=1e-5, num_epochs=10):
+def leave_one_out(X, y, epoch_info, alpha=1e-5, num_epochs=10, batch_size=5, regularization=1e-5):
     folds_accuracy = 0
     for test_idx in range(X.shape[0]):
-        print("Test Sample:", test_idx)
-        
+        #print("Test Sample:", test_idx)
+  
         X_train = np.delete(np.copy(X), test_idx, 0)
+        scaler = Scaler(epoch_info)
+        vectorizer = Vectorizer()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_train_vectorized = vectorizer.fit_transform(X_train_scaled)
         y_train = np.delete(np.copy(y), test_idx, 0)
-        model = models.WaveletCNN(X_train.shape[1], y.shape[1])
-        train_model(model, torch.tensor(X_train).float(), torch.tensor(y_train).float(), alpha, num_epochs)
+        model = models.LinearModel(X_train.shape[1]*X_train.shape[2], y.shape[1])
+        train_model(model, torch.tensor(X_train_vectorized).float(), torch.tensor(y_train).float(), alpha, num_epochs, batch_size, regularization)
 
-        #get test loss and accuracy from model
-        test_sample = torch.unsqueeze(torch.tensor(X[test_idx]).float(), 0)
+        #get test accuracy from model
+        test_sample = np.expand_dims(np.array(X[test_idx]), 0)
+        test_sample = vectorizer.transform(scaler.transform(test_sample))
+        test_sample = torch.tensor(test_sample).float()
         test_preds = model(test_sample)
         y_tensor = torch.tensor(y[test_idx]).float()
         max_preds = torch.argmax(test_preds)
@@ -149,22 +156,28 @@ def leave_one_out(X, y, alpha=1e-5, num_epochs=10):
 
 def main():
     print("Reading data file...")
-    with open(FILE_PATH + FILE_TIME, 'rb') as f:
-        X, y = pickle.load(f)
+    epochs = mne.read_epochs(FILE_PATH + FILE_TIME)
+    X = epochs.get_data()
+    y = epochs.events[:,2]
+    # with open(FILE_PATH + FILE_TIME, 'rb') as f:
+    #     X, y = pickle.load(f)
     print("One-hot Encoding labels...")
     one_hot_y = one_hot_encode(y)
     print("Performing leave-one-out evaluation...")
-    # performances = {}
-    # for alpha in (1e-2, 1e-3, 1e-4):
-    #     for num_epochs in (5, 10, 25):
-    total_acc = 0
-    for i in range(NUM_EVAL_ITERS):
-        loo_acc = leave_one_out(X, one_hot_y, 1e-3, 50)
-        total_acc += loo_acc
-    overall_acc = total_acc/NUM_EVAL_ITERS
-    print("Overall Accuracy:", overall_acc)
-    #         performances[(alpha, num_epochs)] = overall_acc
-    # print(performances)
+    # total_acc = 0
+    # for i in range(NUM_EVAL_ITERS):
+    #     loo_acc = leave_one_out(X, one_hot_y, epochs.info, alpha=1e-3, num_epochs=5, batch_size=5, regularization=1e-5)
+    #     total_acc += loo_acc
+    # overall_acc = total_acc/NUM_EVAL_ITERS
+    # print("Overall Accuracy:", overall_acc)
+    performances = {}
+    for alpha in (1e-2, 1e-3, 1e-4, 1e-5):
+        for regularization in (1e-3, 1e-4, 1e-5):
+            print("Evaluating:",(alpha, regularization))
+            loo_acc = leave_one_out(X, one_hot_y, epochs.info, alpha=alpha, num_epochs=5, batch_size=5, regularization=regularization)
+            print("\tAccuracy:",loo_acc)
+            performances[(alpha, regularization)] = loo_acc
+    print(performances)
 
 main()
 
