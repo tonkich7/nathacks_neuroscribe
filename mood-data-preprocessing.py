@@ -83,7 +83,7 @@ def plot_raw_data(raw):
     raw.plot_psd(average=True)
 
 def preprocess_raw(raw):
-    filtered_data = raw.copy().filter(l_freq=0.01, h_freq = 60) # bandpass 
+    filtered_data = raw.copy().filter(l_freq=0.1, h_freq = 60) # bandpass 
     filtered_data = filtered_data.notch_filter(freqs=60) #removes 60hz spike
     return filtered_data
 
