@@ -1,19 +1,23 @@
 // import logo from './logo.svg';
 import './App.css';
-import ColorPicker from './components/ColorPicker'; // Import the component
+import MoodPicker from './components/MoodPicker'; // Import the component
 
 function App() {
   return (
     
     <div className="App">
       <div className='neuroscribe-logo'>
-        NeuroScribe
+        {/* NeuroScribe */}
+        <img src="nathacks2023logo.png" alt="Our Logo" width="120" height="100"></img>
       </div>
       <div className='people'>
-        Harrison, Hilary, Rose, Kevin, Alvin
+        NatHacks 2023
       </div>
+      {/* <div className='people'>
+        Harrison, Hilary, Rose, Kevin, Alvin
+      </div> */}
 
-      <ColorPicker />
+      <MoodPicker />
     </div>
   
   );
