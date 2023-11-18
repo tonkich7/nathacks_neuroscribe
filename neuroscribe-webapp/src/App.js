@@ -1,23 +1,25 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import MoodPicker from './components/MoodPicker';
+import TextSelection from './components/TextSelection';
 
 function App() {
+  const [mood, setMood] = useState("Detecting...");
+
+  const handleMoodUpdate = (newMood) => {
+    setMood(newMood);
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <div className='neuroscribe-logo'>
+        <img src="nathacks2023logo.png" alt="Our Logo" width="120" height="100"></img>
+      </div>
+      <div className='people'>
+        NatHacks 2023
+      </div>
+      <MoodPicker onMoodDetermined={handleMoodUpdate} />
+      {mood !== "Detecting..." && <TextSelection mood={mood} />}
     </div>
   );
 }

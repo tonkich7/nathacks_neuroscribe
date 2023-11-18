@@ -1,0 +1,38 @@
+.mood-container {
+    position: relative; /* Needed for absolute positioning of the mood line */
+    /* Add any additional styles for layout and alignment */
+  }
+  
+  .measure-text {
+    color: #FFFFFF;
+    font-family: 'Poppins', sans-serif;
+    padding-left: 2rem;
+    margin-top: 3rem;
+    font-size: 1.5rem;
+    /* Align text to center if needed */
+    text-align: left;
+
+  }
+  
+  .mood-line {
+    border: none;
+    height: 2px;
+    background-color: white; /* White line */
+    margin-top: 1rem; /* Space above the line */
+    margin-bottom: 1rem; /* Space below the line */
+    width: 0; /* Start with a width of 0 */
+    position: absolute; /* Absolute position */
+    left: 0;
+    right: 0;
+    transition: width 1s ease, margin-left 1s ease, margin-right 1s ease; /* Smooth transition for the width and margins */
+  }
+  
+  /* When the line is shown, transition it to full width with margins */
+  .mood-line.visible {
+    width: 95%; /* Full width of the viewport */
+    margin-left: 2rem; /* Space from the left edge */
+    margin-right: 1.5rem; /* Space from the right edge */
+  }
+  
+  
+  

@@ -1,0 +1,10 @@
+.text-select-container{
+    display: flex;
+    margin-top: 5rem;
+    justify-content: center;
+    align-items: center;
+}
+
+.mood-text{
+    color: aliceblue;
+}
