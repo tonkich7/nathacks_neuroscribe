@@ -4,7 +4,7 @@ import numpy as np
 import random
 import time
 import glob
-import cv2
+# import cv2
 import sys
 import tkinter as tk
 from PIL import ImageTk, Image
