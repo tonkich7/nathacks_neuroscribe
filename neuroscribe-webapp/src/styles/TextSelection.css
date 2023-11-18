@@ -1,10 +1,66 @@
-.text-select-container{
+.text-select-container {
     display: flex;
+    flex-direction: column;
     margin-top: 5rem;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start; /* Align items to the start (left) */
+    padding-left: 20px; /* Add padding on the left */
 }
 
-.mood-text{
+.mood-text {
     color: aliceblue;
+    text-align: left; /* Align text to the left */
+}
+
+/* Add a new class for the selection box */
+.selection-box {
+    border: 2px solid #000; /* Black border, you can choose any color */
+    border-radius: 15px; /* Adjust border radius as needed */
+    padding: 5px 10px; /* Some padding for better appearance */
+    display: inline-block; /* To wrap the border around the content */
+    margin: 5px; /* Optional, for some space around the box */
+    background-color: #FDFAF04D;
+    width: 150px; /* Fixed width */
+    height: 50px; /* Fixed height */
+    text-align: center; /* Center the text inside the box */
+    line-height: 50px; /* Align text vertically */
+}
+
+  
+
+.sentences{
+    color: aliceblue;
+    text-align: left;
+    font-family: 'poppins';
+    margin-top: 1rem;
+    font-size: 1.5rem;
+    margin-left: 2rem;
+}
+
+.underline{
+    color: black;
+}
+
+.selection-box-above, .selection-box-below {
+    color: rgb(19, 20, 20);
+    border: 2px solid #000; /* Black border, you can choose any color */
+    border-radius: 15px; /* Adjust border radius as needed */
+    padding: 5px 10px; /* Some padding for better appearance */
+    display: inline-block; /* To wrap the border around the content */
+    margin: 5px; /* Optional, for some space around the box */
+    background-color: #ffdb5d;
+    width: 150px; /* Fixed width */
+    height: 50px; /* Fixed height */
+    text-align: center; /* Center the text inside the box */
+    line-height: 50px; /* Align text vertically */
+}
+
+.selection-box-above {
+    margin-left: 2.4rem;
+    margin-bottom: 1rem;
+}
+
+.selection-box-below {
+    margin-left: 2.4rem;
+    margin-top: 2rem;
 }
