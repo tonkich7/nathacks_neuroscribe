@@ -8,7 +8,7 @@ const MoodPicker = ({ onMoodDetermined }) => {
   const wait = async () => {
     return new Promise(resolve => {
       setTimeout(() => {
-        resolve(0.6); 
+        resolve(0.4); 
       }, 3000); 
     });
   };
