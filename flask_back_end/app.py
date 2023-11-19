@@ -20,6 +20,7 @@ from mne.decoding import (
 import time
 import pickle
 import pandas as pd
+
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -28,13 +29,18 @@ from flask import Flask, request
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-#MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
-MOOD_MODEL_FILE = "../mood_model"
-POS_MODEL_FILE = "../text_models/pos_model.h5"
+MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
+# MOOD_MODEL_FILE = "../mood_model"
+# POS_MODEL_FILE = "../text_models/pos_model.h5"
+POS_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/pos_model.h5"
 POS_DATA_FILE = "../sentences/positive.jsonl"
-NEUT_MODEL_FILE = "../text_models/neutral_model.h5"
+# NEUT_MODEL_FILE = "../text_models/neutral_model.h5"
+NEUT_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neutral_model.h5"
+
 NEUT_DATA_FILE = "../sentences/neutral.jsonl"
-NEG_MODEL_FILE = "../text_models/neg_model.h5"
+# NEG_MODEL_FILE = "../text_models/neg_model.h5"
+NEG_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neg_model.h5"
+
 NEG_DATA_FILE = "../sentences/negative.jsonl"
 
 #json variables
