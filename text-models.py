@@ -81,7 +81,8 @@ def train_model(data, model_name):
 
 def run_model(model_name, data):
     # Generate next word predictions
-    model = load_model(model_name)
+    model = load_model(model_name, compile=False)
+    model.compile()
     all_sentences = get_sentences(data)
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(all_sentences)
@@ -100,6 +101,7 @@ def run_model(model_name, data):
         token_list = tokenizer.texts_to_sequences([seed_text])[0]
         token_list = pad_sequences(
             [token_list], maxlen=max_sequence_len-1, padding='pre')
+        print(token_list)
         predicted_probs = model.predict(token_list)
         predicted_word = tokenizer.index_word[np.argmax(predicted_probs)]
         seed_text += " " + predicted_word
