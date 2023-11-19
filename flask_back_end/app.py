@@ -92,7 +92,8 @@ def get_mood(board, model, scaler, vectorizer, mood_num_samples, sfreq):
 def get_direction(board):
     return -1
 
-#mood is either 0,1,2 (positive, neutral, negative) and nth_words refers to getting the top 
+#mood is either 0,1,2 (positive, neutral, negative)
+#nth_words refers to getting the nth and (n+1)th top words (e.g. if nth_words=0, 0th and 1st top words are returned)
 def get_words(mood, nth_words):
     word_1 = ""
     word_2 = ""
