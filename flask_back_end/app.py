@@ -8,6 +8,7 @@ import numpy as np
 import math
 import mne
 import torch
+from flask_cors import CORS
 import torch.nn as nn
 import torch.nn.functional as F
 from mne.decoding import (
@@ -24,7 +25,8 @@ from flask import Flask, request
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-MOOD_MODEL_FILE = "../mood_model"
+MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
+# MOOD_MODEL_FILE = "../mood_model"
 
 #json variables
 MOOD = -1
@@ -101,6 +103,7 @@ def get_words(mood, nth_words):
 
 # create the Flask app
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/get-mood')
 def get_mood_api():

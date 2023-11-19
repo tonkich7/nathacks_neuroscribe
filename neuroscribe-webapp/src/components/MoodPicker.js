@@ -10,12 +10,12 @@ const MoodPicker = ({ onMoodDetermined }) => {
     return new Promise((resolve, reject) => {
       setTimeout(async () => {
         try {
-          const response = await fetch('http://127.0.0.1:5000/get-json');
+          const response = await fetch('http://127.0.0.1:5000/get-mood');
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const data = await response.json();
-          console.log("HERE: ",data.mood)
+          console.log("HERE: ",data.mood) 
           resolve(data.mood); // Assuming the response format is {"mood":1}
         } catch (e) {
           console.error('Fetch failed:', e.message);
@@ -36,18 +36,26 @@ const MoodPicker = ({ onMoodDetermined }) => {
 
   useEffect(() => {
     const getModelPrediction = async () => {
-      const moodValue = await fetchMoodData();
-      if (moodValue !== null) {
-        setInputValue(moodValue);
-        setShowLine(true); 
-        const determinedMood = moodValue > 0.5 ? "Positive" : moodValue === 0.5 ? "Neutral" : "Negative";
-        onMoodDetermined(determinedMood); 
-      }
+      fetchMoodData()
+        .then(moodValue => {
+          if (moodValue !== null) {
+            setInputValue(moodValue);
+            setShowLine(true);
+            const determinedMood = moodValue === 0 ? "Positive" : moodValue === 1 ? "Neutral" : "Negative";
+            onMoodDetermined(determinedMood);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching mood data:', error);
+          // Handle the error appropriately
+        });
     };
     getModelPrediction();
-  }, [onMoodDetermined]);
+  }, []); // Empty dependency array to ensure this runs only once on component mount
+  
+  
 
-  const mood = inputValue === 5 ? "Detecting..." : inputValue > 0.5 ? "Positive" : inputValue === 0.5 ? "Neutral" : "Negative";
+  const mood = inputValue === 5 ? "Detecting..." : inputValue === 0 ? "Positive" : inputValue === 1 ? "Neutral" : "Negative";
 
   const moodStyle = {
     color: mood === "Positive" ? "#ffdb5d" : mood === "Negative" ? "#72f3f3" : mood === "Neutral" ? "#ffffff" : "black",
