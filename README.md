@@ -54,9 +54,9 @@ After all of these are installed:
 2. Launch your terminal/command prompt from within this folder
 3. Type "npm install" and wait for everything to install
 4. Type "npm start", this will launch the reactjs front end
-5. Go back one directory in your terminal
+5. Go back one directory and enter the flask_back_end folder
 6. If you are using an OpenBCI Ganglion, open up app.py and change the SERIAL_PORT variable to the port your device is connected to
-7. Type "py app.py", this will launch the python back end
+7. Type "py app.py" in your terminal, this will launch the python back end
 8. In a separate tab in your browser go to http://localhost:5000/setup and wait for the page to load
 9. Refresh http://localhost:3000/
 10. Ta-da! You can now write with your brain.
