@@ -22,52 +22,6 @@ function TextSelection({ mood }) {
     }
   };
 
-  // const simulateKeyPress = async () => {
-  //   try {
-  //     // Fetch direction data using fetchDirection function
-  //     const directionData = await fetchDirection();
-
-  //     // Assuming directionData contains the direction as a number (0, 1, 2, or 3)
-  //     const direction = directionData.direction;
-
-  //     // Simulate keypress based on the direction
-  //     switch (direction) {
-  //       case 0: // Up arrow key (key code 38)
-  //         // Simulate an up arrow key press
-  //         handleKeyDown({ keyCode: 38 });
-  //         console.log('up')
-  //         break;
-  //       case 1: // Right arrow key (key code 39)
-  //         // Simulate a right arrow key press
-  //         handleKeyDown({ keyCode: 39 });
-  //         console.log('down')
-  //         break;
-  //       case 2: // Down arrow key (key code 40)
-  //         // Simulate a down arrow key press
-  //         handleKeyDown({ keyCode: 40 });
-  //         console.log('down')
-  //         break;
-  //       case 3: // Left arrow key (key code 37)
-  //         // Simulate a left arrow key press
-  //         handleKeyDown({ keyCode: 37 });
-  //         console.log('refreshed')
-  //         break;
-  //       default:
-  //         console.error('Invalid direction:', direction);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error simulating keypress:', error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   // Call simulateKeyPress to simulate the keypress based on fetched direction every 2 seconds
-  //   const intervalId = setInterval(simulateKeyPress, 4000);
-
-  //   // Cleanup function to clear the interval when the component unmounts
-  //   return () => clearInterval(intervalId);
-  // }, []); // Empty dependency array means this effect runs once on component mount
-
   const fetchWords = async () => {
     let url;
     switch (mood) {
@@ -104,12 +58,62 @@ function TextSelection({ mood }) {
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (currentIndex >= currentSelections.length) return; // Exit if all boxes are displayed
+  // MANUALLY WORKING ONE
+  // const handleKeyDown = (e) => {
+  //   if (currentIndex >= currentSelections.length) return; // Exit if all boxes are displayed
+    
+  //   console.log('Handling key down:', e.keyCode);
 
-    console.log('Handling key down:', e.keyCode);
+  //   if (e.keyCode === 38) { // Up arrow key
+  //     if (!boxesLocked[currentIndex]) {
+  //       setCurrentSelections((current) =>
+  //         current.map((sel, index) =>
+  //           index === currentIndex ? HappyList[0] : sel
+  //         )
+  //       );
+  //     }
+  //   } else if (e.keyCode === 40) { // Down arrow key
+  //     if (!boxesLocked[currentIndex]) {
+  //       setCurrentSelections((current) =>
+  //         current.map((sel, index) =>
+  //           index === currentIndex ? HappyList[1] : sel
+  //         )
+  //       );
+  //     }
+  //   } else if (e.keyCode === 39) { // Right arrow key to lock the box and move to the next
+  //     setBoxesLocked((current) =>
+  //       current.map((locked, index) =>
+  //         index === currentIndex ? true : locked
+  //       )
+  //     );
+  //     setCurrentIndex((index) => index + 1);
+  //   } else if (e.keyCode === 37) { // Left arrow key to change the option
+  //     fetchWords();
+  //   }
+  // };
 
-    if (e.keyCode === 38) { // Up arrow key
+  // useEffect(() => {
+  //   fetchWords();
+  // }, [mood]);
+
+  // useEffect(() => {
+  //   window.addEventListener('keydown', handleKeyDown);
+  //   return () => window.removeEventListener('keydown', handleKeyDown);
+  // }, [currentIndex, currentSelections, mood]); 
+
+
+
+
+// TESTER
+const handleKeyDown = async () => {
+  if (currentIndex >= currentSelections.length) return; // Exit if all boxes are displayed
+
+  try {
+    const directionData = await fetchDirection();
+    const direction = directionData.direction;
+    console.log('Handling key down with direction:', direction);
+
+    if (direction === 0) { // Up arrow key
       if (!boxesLocked[currentIndex]) {
         setCurrentSelections((current) =>
           current.map((sel, index) =>
@@ -117,7 +121,7 @@ function TextSelection({ mood }) {
           )
         );
       }
-    } else if (e.keyCode === 40) { // Down arrow key
+    } else if (direction === 2) { // Down arrow key
       if (!boxesLocked[currentIndex]) {
         setCurrentSelections((current) =>
           current.map((sel, index) =>
@@ -125,26 +129,34 @@ function TextSelection({ mood }) {
           )
         );
       }
-    } else if (e.keyCode === 39) { // Right arrow key to lock the box and move to the next
+    } else if (direction === 1) { // Right arrow key to lock the box and move to the next
       setBoxesLocked((current) =>
         current.map((locked, index) =>
           index === currentIndex ? true : locked
         )
       );
       setCurrentIndex((index) => index + 1);
-    } else if (e.keyCode === 37) { // Left arrow key to change the option
+    } else if (direction === 3) { // Left arrow key to change the option
       fetchWords();
     }
-  };
+  } catch (error) {
+    console.error('Error handling key down:', error);
+  }
+};
+
 
   useEffect(() => {
     fetchWords();
   }, [mood]);
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    const intervalId = setInterval(async () => {
+      await handleKeyDown();
+    }, 2000);
+    // Cleanup function to clear the interval when the component unmounts
+    return () => clearInterval(intervalId);
   }, [currentIndex, currentSelections, mood]);
+  
 
   const boxColor = mood === 'Positive' ? '#ffdb5d' : mood === 'Negative' ? '#72f3f3' : '#FFFFFF';
   const selectionBoxStyle = {
