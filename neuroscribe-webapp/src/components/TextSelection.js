@@ -2,42 +2,48 @@ import React, { useState, useEffect } from 'react';
 import '../styles/TextSelection.css';
 
 function TextSelection({ mood }) {
+  let HappyList = ['I', "Want", "They", "She", "He", "Want", "To", "Throw", "Say", "Need", "Desire", "Run", "Away", "Because"];
+
   // Define the selections for each mood
   const selections = {
     Positive: [
-      { 38: "I", 40: "They" }, // Box 1
-      { 38: "Next", 40: "Work" }, // Box 2
-      // Add additional selection pairs for Boxes 3, 4, and 5
-      { 38: "Here", 40: "Now" }, // Box 3
-      { 38: "Always", 40: "Never" }, // Box 4
-      { 38: "Yes", 40: "No" }, // Box 5
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 1
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 2
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 3
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 4
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 5
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 6
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 7
+
     ],
     Negative: [
-        { 38: "NEG", 40: "They" }, // Box 1
-        { 38: "Next", 40: "Work" }, // Box 2
-        // Add additional selection pairs for Boxes 3, 4, and 5
-        { 38: "Here", 40: "Now" }, // Box 3
-        { 38: "Always", 40: "Never" }, // Box 4
-        { 38: "Yes", 40: "No" }, // Box 5
+      // Define Negative selections here
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 1
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 2
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 3
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 4
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 5
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 6
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 7
     ],
     Neutral: [
-        { 38: "NEU", 40: "They" }, // Box 1
-        { 38: "Next", 40: "Work" }, // Box 2
-        // Add additional selection pairs for Boxes 3, 4, and 5
-        { 38: "Here", 40: "Now" }, // Box 3
-        { 38: "Always", 40: "Never" }, // Box 4
-        { 38: "Yes", 40: "No" }, // Box 5
+      // Define Neutral selections here
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 1
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 2
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 3
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 4
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 5
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 6
+      { 38: HappyList[0], 40: HappyList[1] }, // Box 7
     ]
   };
 
-  // States for the current selections and locks for each box
-  const [currentSelections, setCurrentSelections] = useState(Array(5).fill("ㅤ"));
-  const [boxesLocked, setBoxesLocked] = useState(Array(5).fill(false));
+  const [currentSelections, setCurrentSelections] = useState(Array(7).fill("ㅤ"));
+  const [boxesLocked, setBoxesLocked] = useState(Array(7).fill(false));
+  const [customSelections, setCustomSelections] = useState(selections[mood]);
 
-  // Determine the color based on the mood
   const boxColor = mood === 'Positive' ? '#ffdb5d' : mood === 'Negative' ? '#72f3f3' : '#FFFFFF';
 
-  // Style object for the selection boxes
   const selectionBoxStyle = {
     backgroundColor: boxColor,
     color: 'rgb(19, 20, 20)',
@@ -52,39 +58,51 @@ function TextSelection({ mood }) {
   };
 
   const handleKeyDown = (e) => {
-    // Find the first box that is not locked
     const boxToChange = boxesLocked.findIndex(locked => !locked);
     if (boxToChange === -1) return; // All boxes are locked
-
-    // Up Arrow (38) and Down Arrow (40) to change the selection
+  
     if (e.keyCode === 38 || e.keyCode === 40) {
       setCurrentSelections(current => 
         current.map((sel, index) => 
-          index === boxToChange ? selections[mood][boxToChange][e.keyCode] : sel
+          index === boxToChange ? customSelections[boxToChange][e.keyCode] : sel
         )
       );
-    }
-
-    // Left Arrow (37) to lock the current box and move to the next one
-    if (e.keyCode === 37) {
+    } else if (e.keyCode === 39) { // Right arrow key to lock the box
       setBoxesLocked(current => 
         current.map((locked, index) => 
           index === boxToChange ? true : locked
         )
       );
+    } else if (e.keyCode === 37) { // Left arrow key to change the option
+      const randomIndex1 = Math.floor(Math.random() * HappyList.length);
+      const randomIndex2 = Math.floor(Math.random() * HappyList.length);
+  
+      const newSelections = { 38: HappyList[randomIndex1], 40: HappyList[randomIndex2] };
+  
+      setCustomSelections(current => 
+        current.map((sel, index) => 
+          index === boxToChange ? newSelections : sel
+        )
+      );
+      setCurrentSelections(current => 
+        current.map((sel, index) => 
+          index === boxToChange ? newSelections[38] : sel // Set the current selection to match the new "above" selection
+        )
+      );
     }
   };
+  
+  
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [boxesLocked, selections, mood]);
+  }, [boxesLocked, customSelections, mood, HappyList]);
 
   return (
     <div className='text-select-container'>
-      {/* ... mood display ... */}
       <div className='selections-container' style={{ display: 'flex' }}>
-        {selections[mood].map((boxSelections, index) => (
+        {customSelections.map((boxSelections, index) => (
           <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {index <= boxesLocked.lastIndexOf(true) + 1 && (
               <>
@@ -101,5 +119,6 @@ function TextSelection({ mood }) {
     </div>
   );
 }
+
 
 export default TextSelection;

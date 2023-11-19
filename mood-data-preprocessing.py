@@ -6,9 +6,9 @@ import pickle
 
 BOARD_ID = 1 #ganglion board id
 FILE_PATH = './experiment_data/mood_'
-FILE_TIME = '1700266292'
+FILE_TIME = '1700339712'
 
-STIM_MAP = {'positive': 1000, 'neutral': 2000, 'negative': 3000}
+STIM_MAP = {'positive': 1, 'neutral': 2, 'negative': 3}
 
 def get_fft_features(epochs):
     samples = epochs.get_data()
@@ -83,7 +83,7 @@ def plot_raw_data(raw):
     raw.plot_psd(average=True)
 
 def preprocess_raw(raw):
-    filtered_data = raw.copy().filter(l_freq=0.01, h_freq = 60) # bandpass 
+    filtered_data = raw.copy().filter(l_freq=0.1, h_freq = 60) # bandpass 
     filtered_data = filtered_data.notch_filter(freqs=60) #removes 60hz spike
     return filtered_data
 
@@ -112,18 +112,17 @@ def main():
     pos_avg = epochs['positive'].average()
     neut_avg = epochs['neutral'].average()
     neg_avg = epochs['negative'].average()
-    # pos_avg.plot(spatial_colors=True) #figure 3
-    # neut_avg.plot(spatial_colors=True) #figure 4
-    # neg_avg.plot(spatial_colors=True) #figure 5
+    pos_avg.plot(spatial_colors=True) #figure 3
+    neut_avg.plot(spatial_colors=True) #figure 4
+    neg_avg.plot(spatial_colors=True) #figure 5
     pos_vs_neg = mne.combine_evoked([pos_avg, neg_avg], weights=[1,-1])
-    # pos_vs_neg.plot(spatial_colors=True) #figure 6
+    pos_vs_neg.plot(spatial_colors=True) #figure 6
     pos_vs_neg.plot_joint() #figure 7
 
     epochs.save("./experiment_data/mood_epochs_" + FILE_TIME, overwrite=True)
 
     epochs.load_data()
-    resampled_epochs = epochs.resample(sfreq=173.61)
-    wavelet_coefs = get_wavelet_coefs(resampled_epochs)
+    wavelet_coefs = get_wavelet_coefs(epochs)
     print(wavelet_coefs.shape)
     # fft_features = get_fft_features(resampled_epochs)
     # wavelet_features = get_wavelet_features(resampled_epochs)
