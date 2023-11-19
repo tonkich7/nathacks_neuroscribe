@@ -68,21 +68,25 @@ def load_mood_model():
     except:
         return False
 
-def get_mood(board, model, scaler, vectorizer, sfreq):
+def get_mood(board, model, scaler, vectorizer, mood_num_samples, sfreq):
     #get data
     print(type(board))
     print(type(model))
     print(type(sfreq))
-    time.sleep((MOOD_NUM_SAMPLES + sfreq*0.1)/sfreq) #sleep so that there are enough samples to feed into the model
-    data = board.get_current_data(MOOD_NUM_SAMPLES + sfreq*0.1) #gets the last few samples plus 0.1 seconds of baseline
+    wait_time = int(math.ceil((mood_num_samples + math.ceil(sfreq*0.1))/sfreq))
+    time.sleep(wait_time) #sleep so that there are enough samples to feed into the model
+    data = board.get_current_board_data(math.ceil(mood_num_samples + sfreq*0.1)) #gets the last few samples plus 0.1 seconds of baseline
     #process data
-    eeg_data = data[eeg_channels, :] / 1000000 #gets eeg channels in volts
-    processed_eeg = eeg_data[:,eeg_data.shape[1]-MOOD_NUM_SAMPLES:] - np.mean(eeg_data[:,:eeg_data.shape[1]-MOOD_NUM_SAMPLES])
-    sample = np.expand_dims(np.array(processed_eeg, 0))
+    eeg_channels = BoardShim.get_eeg_channels(board_id)
+    eeg_data = data[eeg_channels[:4], :] / 1000000 #gets first four eeg channels in volts
+    processed_eeg = eeg_data[:,eeg_data.shape[1]-mood_num_samples:] - np.mean(eeg_data[:,:eeg_data.shape[1]-mood_num_samples])
+    sample = np.expand_dims(np.array(processed_eeg), 0)
+    print(sample.shape)
     sample = vectorizer.transform(scaler.transform(sample))
     #get predictions
     test_preds = model(torch.tensor(sample).float())
-    MOOD = test_preds[0]
+    max_pred = torch.argmax(test_preds).item()
+    MOOD = max_pred
     return MOOD
 
 def get_direction(board):
@@ -96,8 +100,8 @@ app = Flask(__name__)
 
 @app.route('/get-mood')
 def get_mood_api():
-    mood = get_mood(board, mood_model, mood_scaler, mood_vectorizer, sfreq)
-    return {'mood':mood}
+    mood = get_mood(board, mood_model, mood_scaler, mood_vectorizer, mood_num_samples, sfreq)
+    return {"mood":mood}
 
 @app.route('/setup')
 def setup():
@@ -106,11 +110,11 @@ def setup():
     global sfreq
     board, board_id, sfreq = start_board()
     model_resp = load_mood_model()
-    return {'board_id':board_id, 'sfreq': sfreq, 'model_load_success':model_resp}
+    return {"board_id":board_id, "sfreq": sfreq, "model_load_success":model_resp}
 
 @app.route('/get-json')
 def get_json():
-    return str({'mood':MOOD, 'direction':DIRECTION, 'word_1':WORD_1, 'word_2':WORD_2})
+    return str({"mood":MOOD, "direction":DIRECTION, "word_1":WORD_1, "word_2":WORD_2})
 
 if __name__ == '__main__':
     # run app in debug mode on port 5000
