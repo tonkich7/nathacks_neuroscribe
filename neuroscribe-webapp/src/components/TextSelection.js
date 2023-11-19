@@ -31,6 +31,13 @@ function TextSelection({ mood }) {
       }
       const data = await response.json();
       setHappyList([data.word_1, data.word_2]);
+      if (!boxesLocked[currentIndex]) {
+        setCurrentSelections((current) =>
+          current.map((sel, index) =>
+            index === currentIndex ? data.word_1 : sel
+          )
+        );
+      }
     } catch (error) {
       console.error("Error fetching words:", error);
     }
@@ -95,11 +102,11 @@ function TextSelection({ mood }) {
           <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             {index <= currentIndex && (
               <>
-                <div style={selectionBoxStyle} className='selection-box-above'>{HappyList[0]}</div>
+                <div style={selectionBoxStyle} className='selection-box-above'>{index === currentIndex ? HappyList[0] : null}</div>
                 <div className="selection-box">
                   <u className='underline'>{word}</u>
                 </div>
-                <div style={selectionBoxStyle} className='selection-box-below'>{HappyList[1]}</div>
+                <div style={selectionBoxStyle} className='selection-box-below'>{index === currentIndex ? HappyList[1] : null}</div>
               </>
             )}
           </div>
