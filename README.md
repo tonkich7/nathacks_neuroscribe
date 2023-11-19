@@ -36,6 +36,31 @@ Word selection will be completely hands free, as a third model will recognize im
 
 <img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a976ff58-411e-4981-bef6-9bd4891a815b" width="800" height="400">
 
+## How to Use NeuroScribe
+To use NeuroScribe you must have the following installed:
+1. Python 3.x and the following libraries:
+  * Brainflow
+  * PyTorch
+  * NumPy
+  * MNE
+  * Flask
+  * Pandas
+  * TensorFlow
+2. Node.js
+  * npm
+
+After all of these are installed:
+1. From the main directory, enter the neuroscribe-webapp folder
+2. Launch your terminal/command prompt from within this folder
+3. Type "npm install" and wait for everything to install
+4. Type "npm start", this will launch the reactjs front end
+5. Go back one directory and enter the flask_back_end folder
+6. If you are using an OpenBCI Ganglion, open up app.py and change the SERIAL_PORT variable to the port your device is connected to
+7. Type "py app.py" in your terminal, this will launch the python back end
+8. In a separate tab in your browser go to http://localhost:5000/setup and wait for the page to load
+9. Refresh http://localhost:3000/
+10. Ta-da! You can now write with your brain.
+
 
 
 
