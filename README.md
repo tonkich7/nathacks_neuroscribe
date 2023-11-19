@@ -2,7 +2,11 @@
 _a hands-free tool that harnesses EEG waves for mood and speech communication, giving back voices to individuals who have lost it._
 
 
-https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/0e108243-244e-4c88-90a9-64550dab49e3
+https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a79a0677-4ed3-45b0-9dab-f54a65f3a0e9
+
+
+
+
 
 
 “NeuroScribe” is a tool that harnesses EEG waves for mood and speech communication, giving voices to individuals who have lost it. There are many disorders that impact motor neurons across the entire peripheral body, impairing fine and gross motor control from walking to speaking.
