@@ -34,13 +34,11 @@ MOOD_MODEL_FILE = "../mood_model"
 DIR_MODEL_FILE = "../direction_model"
 POS_MODEL_FILE = "../text_models/pos_model.h5"
 POS_DATA_FILE = "../sentences/positive.jsonl"
-# NEUT_MODEL_FILE = "../text_models/neutral_model.h5"
-NEUT_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neutral_model.h5"
-
+NEUT_MODEL_FILE = "../text_models/neutral_model.h5"
+#NEUT_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neutral_model.h5"
 NEUT_DATA_FILE = "../sentences/neutral.jsonl"
-# NEG_MODEL_FILE = "../text_models/neg_model.h5"
-NEG_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neg_model.h5"
-
+NEG_MODEL_FILE = "../text_models/neg_model.h5"
+#NEG_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neg_model.h5"
 NEG_DATA_FILE = "../sentences/negative.jsonl"
 
 #global variables
@@ -215,10 +213,21 @@ def get_neg_words():
 @app.route('/get-direction')
 def get_direction_api():
     global n_requests
+    global sentence
     direction = get_direction(board, dir_model, dir_scaler, dir_vectorizer, dir_num_samples, sfreq)
-    if direction == 0 or direction == 2:
-        print("Reset n_requests")
+    if direction == 0:
         n_requests = 0
+        if sentence == "":
+            sentence = curr_word_1
+        else:
+            sentence += " " + curr_word_1
+    elif direction == 2:
+        n_requests = 0
+        if sentence == "":
+            sentence = curr_word_2
+        else:
+            sentence += " " + curr_word_2
+
     return {"direction":direction}
 
 @app.route('/get-mood')
