@@ -48,6 +48,7 @@ def start_board():
         print("Board correctly prepared.")
     except Exception as e:
         print(e)
+        # params = BrainFlowInputParams()
         board = BoardShim(SYNTHETIC_BOARD_ID, params)
         board.prepare_session()
         board_id = SYNTHETIC_BOARD_ID
