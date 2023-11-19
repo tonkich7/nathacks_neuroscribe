@@ -22,47 +22,51 @@ function TextSelection({ mood }) {
     }
   };
 
-  const simulateKeyPress = async () => {
-    try {
-      // Fetch direction data using fetchDirection function
-      const directionData = await fetchDirection();
+  // const simulateKeyPress = async () => {
+  //   try {
+  //     // Fetch direction data using fetchDirection function
+  //     const directionData = await fetchDirection();
 
-      // Assuming directionData contains the direction as a number (0, 1, 2, or 3)
-      const direction = directionData.direction;
+  //     // Assuming directionData contains the direction as a number (0, 1, 2, or 3)
+  //     const direction = directionData.direction;
 
-      // Simulate keypress based on the direction
-      switch (direction) {
-        case 0: // Up arrow key (key code 38)
-          // Simulate an up arrow key press
-          handleKeyDown({ keyCode: 38 });
-          break;
-        case 1: // Right arrow key (key code 39)
-          // Simulate a right arrow key press
-          handleKeyDown({ keyCode: 39 });
-          break;
-        case 2: // Down arrow key (key code 40)
-          // Simulate a down arrow key press
-          handleKeyDown({ keyCode: 40 });
-          break;
-        case 3: // Left arrow key (key code 37)
-          // Simulate a left arrow key press
-          handleKeyDown({ keyCode: 37 });
-          break;
-        default:
-          console.error('Invalid direction:', direction);
-      }
-    } catch (error) {
-      console.error('Error simulating keypress:', error);
-    }
-  };
+  //     // Simulate keypress based on the direction
+  //     switch (direction) {
+  //       case 0: // Up arrow key (key code 38)
+  //         // Simulate an up arrow key press
+  //         handleKeyDown({ keyCode: 38 });
+  //         console.log('up')
+  //         break;
+  //       case 1: // Right arrow key (key code 39)
+  //         // Simulate a right arrow key press
+  //         handleKeyDown({ keyCode: 39 });
+  //         console.log('down')
+  //         break;
+  //       case 2: // Down arrow key (key code 40)
+  //         // Simulate a down arrow key press
+  //         handleKeyDown({ keyCode: 40 });
+  //         console.log('down')
+  //         break;
+  //       case 3: // Left arrow key (key code 37)
+  //         // Simulate a left arrow key press
+  //         handleKeyDown({ keyCode: 37 });
+  //         console.log('refreshed')
+  //         break;
+  //       default:
+  //         console.error('Invalid direction:', direction);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error simulating keypress:', error);
+  //   }
+  // };
 
-  useEffect(() => {
-    // Call simulateKeyPress to simulate the keypress based on fetched direction every 2 seconds
-    const intervalId = setInterval(simulateKeyPress, 4000);
+  // useEffect(() => {
+  //   // Call simulateKeyPress to simulate the keypress based on fetched direction every 2 seconds
+  //   const intervalId = setInterval(simulateKeyPress, 4000);
 
-    // Cleanup function to clear the interval when the component unmounts
-    return () => clearInterval(intervalId);
-  }, []); // Empty dependency array means this effect runs once on component mount
+  //   // Cleanup function to clear the interval when the component unmounts
+  //   return () => clearInterval(intervalId);
+  // }, []); // Empty dependency array means this effect runs once on component mount
 
   const fetchWords = async () => {
     let url;
