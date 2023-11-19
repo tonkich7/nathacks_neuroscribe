@@ -32,9 +32,9 @@ Word selection will be completely hands free, as a third model will recognize im
 
 <img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b2a04a25-bf9d-4a50-9a53-0aa104e13eed" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a976ff58-411e-4981-bef6-9bd4891a815b" width="800" height="400">
-
 <img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/87fac3c5-945f-4445-af39-4ed7fbb3c5f4" width="800" height="400">
+
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a976ff58-411e-4981-bef6-9bd4891a815b" width="800" height="400">
 
 
 
