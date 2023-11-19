@@ -10,6 +10,7 @@ import mne
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from flask_cors import CORS
 from mne.decoding import (
     SlidingEstimator,
     cross_val_multiscore,
@@ -22,11 +23,14 @@ from flask import Flask, request
 
 # create the Flask app
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/get-json')
 def get_json():
-    return 'JSON Object Example'
+    return {
+        "mood":.7
+    }
 
 if __name__ == '__main__':
     # run app in debug mode on port 5000
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=5000)

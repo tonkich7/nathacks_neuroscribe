@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import MoodPicker from './components/MoodPicker';
 import TextSelection from './components/TextSelection';
+// import data from "./jsons/test.json"
 
 function App() {
   const [mood, setMood] = useState("Detecting...");
