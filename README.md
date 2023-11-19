@@ -36,6 +36,13 @@ Word selection will be completely hands free, as a third model will recognize im
 
 <img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a976ff58-411e-4981-bef6-9bd4891a815b" width="800" height="400">
 
+## How to Use NeuroScribe
+To use NeuroScribe you must have the following installed:
+1. Python 3.x
+  * Brainflow
+2. Node.js
+  * npm
+
 
 
 
