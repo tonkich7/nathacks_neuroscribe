@@ -154,6 +154,15 @@ def leave_one_out(X, y, epoch_info, alpha=1e-5, num_epochs=10, batch_size=5, reg
     print("Leave-one-out Accuracy:", loo_acc)
     return loo_acc
 
+def train_final_model(X, y, epoch_info, alpha=1e-5, num_epochs=10, batch_size=5, regularization=1e-5):
+    scaler = Scaler(epoch_info)
+    vectorizer = Vectorizer()
+    X_scaled = scaler.fit_transform(X)
+    X_vectorized = vectorizer.fit_transform(X_scaled)
+    model = models.LinearModel(X.shape[1]*X.shape[2], y.shape[1])
+    train_model(model, torch.tensor(X_vectorized).float(), torch.tensor(y).float(), alpha, num_epochs, batch_size, regularization)
+    return model, scaler, vectorizer, X_vectorized.shape[1]
+
 def main():
     print("Reading data file...")
     epochs = mne.read_epochs(FILE_PATH + FILE_TIME)
@@ -170,14 +179,19 @@ def main():
     #     total_acc += loo_acc
     # overall_acc = total_acc/NUM_EVAL_ITERS
     # print("Overall Accuracy:", overall_acc)
-    performances = {}
-    for alpha in (1e-2, 1e-3, 1e-4, 1e-5):
-        for regularization in (1e-3, 1e-4, 1e-5):
-            print("Evaluating:",(alpha, regularization))
-            loo_acc = leave_one_out(X, one_hot_y, epochs.info, alpha=alpha, num_epochs=5, batch_size=5, regularization=regularization)
-            print("\tAccuracy:",loo_acc)
-            performances[(alpha, regularization)] = loo_acc
-    print(performances)
-
+    # performances = {}
+    # for alpha in (1e-2, 1e-3, 1e-4, 1e-5):
+    #     for regularization in (1e-3, 1e-4, 1e-5):
+    #         print("Evaluating:",(alpha, regularization))
+    #         loo_acc = leave_one_out(X, one_hot_y, epochs.info, alpha=alpha, num_epochs=5, batch_size=5, regularization=regularization)
+    #         print("\tAccuracy:",loo_acc)
+    #         performances[(alpha, regularization)] = loo_acc
+    # print(performances)
+    
+    model, scaler, vectorizer, num_samples = train_final_model(X, one_hot_y, epochs.info, alpha=0.01, num_epochs=5, batch_size=5, regularization=0.001)
+    print("Num_samples:", num_samples)
+    with open("./mood_model", 'wb') as file:
+        pickle.dump((model, scaler, vectorizer, num_samples), file)
+        print("Successfully output mood_model")
 main()
 

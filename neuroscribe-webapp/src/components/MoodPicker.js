@@ -15,12 +15,13 @@ const MoodPicker = ({ onMoodDetermined }) => {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const data = await response.json();
+          console.log("HERE: ",data.mood)
           resolve(data.mood); // Assuming the response format is {"mood":1}
         } catch (e) {
           console.error('Fetch failed:', e.message);
           reject(null); // Reject with null in case of error
         }
-      }, 4000); // Wait for 2 seconds before fetching
+      }, 4000); // Wait for 4 seconds before fetching
     });
   };
 
