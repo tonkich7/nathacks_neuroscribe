@@ -12,7 +12,7 @@ import turtle
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-NUM_SAMPLES_EACH = 2 #how many samples of each label should be gathered in the baseline step
+NUM_SAMPLES_EACH = 25 #how many samples of each label should be gathered in the baseline step
 SAMPLE_SECONDS = 3 #how many seconds of data should be gathered for each sample
 FILE_PATH = './experiment_data/direction_'
 
@@ -40,8 +40,9 @@ def run_experiment(board, board_id):
     screen.bgcolor('white')
     ttl.speed(1.5)
     ttl.shape('square')
-    ttl.turtlesize(5,5)
-    ttl.pensize(2)
+    ttl.right(-90)
+    ttl.turtlesize(4,4)
+    ttl.pensize(5)
     for stimulus in stimuli:
         ttl.hideturtle()
         ttl.right(90*(stimulus-1))
@@ -50,12 +51,13 @@ def run_experiment(board, board_id):
         ttl.pendown()
         ttl.pencolor('grey')
         ttl.color('black')
-        time.sleep(SAMPLE_SECONDS)
-        ttl.forward(90)
-        time.sleep(SAMPLE_SECONDS)
+        time.sleep(SAMPLE_SECONDS/2)
+        ttl.forward(150)
+        time.sleep(SAMPLE_SECONDS/2)
         ttl.clear()
         ttl.penup()
         ttl.hideturtle()
+        ttl.right(-(90*(stimulus-1)))
         ttl.setpos(0,0)
         ttl.showturtle()
         ttl.color('red')
