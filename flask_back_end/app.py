@@ -29,10 +29,10 @@ from flask import Flask, request
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
-# MOOD_MODEL_FILE = "../mood_model"
-# POS_MODEL_FILE = "../text_models/pos_model.h5"
-POS_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/pos_model.h5"
+#MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
+MOOD_MODEL_FILE = "../mood_model"
+DIR_MODEL_FILE = "../direction_model"
+POS_MODEL_FILE = "../text_models/pos_model.h5"
 POS_DATA_FILE = "../sentences/positive.jsonl"
 # NEUT_MODEL_FILE = "../text_models/neutral_model.h5"
 NEUT_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_models/neutral_model.h5"
@@ -43,14 +43,9 @@ NEG_MODEL_FILE ="/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/text_mo
 
 NEG_DATA_FILE = "../sentences/negative.jsonl"
 
-#json variables
-MOOD = -1
-DIRECTION = -1
-WORD_1 = ""
-WORD_2 = ""
-
 #global variables
 mood_model, mood_scaler, mood_vectorizer, mood_num_samples = None, None, None, None
+dir_model, dir_scaler, dir_vectorizer, dir_num_samples = None, None, None, None
 board, board_id, sfreq = None, None, None
 pos_lang_model, neut_lang_model, neg_lang_model = None, None, None
 pos_tokenizer, neut_tokenizer, neg_tokenizer = None, None, None
@@ -111,6 +106,18 @@ def load_lang_model(model_name, data):
     max_sequence_len = max([len(seq) for seq in input_sequences])
     return model, tokenizer, max_sequence_len
 
+def load_dir_model():
+    global dir_model
+    global dir_vectorizer
+    global dir_scaler
+    global dir_num_samples
+    file = open(DIR_MODEL_FILE,'rb')
+    try:
+        dir_model, dir_scaler, dir_vectorizer, dir_num_samples = pickle.load(file)
+        return True
+    except:
+        return False
+
 def load_mood_model():
     global mood_model
     global mood_vectorizer
@@ -125,9 +132,6 @@ def load_mood_model():
 
 def get_mood(board, model, scaler, vectorizer, mood_num_samples, sfreq):
     #get data
-    print(type(board))
-    print(type(model))
-    print(type(sfreq))
     wait_time = int(math.ceil((mood_num_samples + math.ceil(sfreq*0.1))/sfreq))
     time.sleep(wait_time) #sleep so that there are enough samples to feed into the model
     data = board.get_current_board_data(math.ceil(mood_num_samples + sfreq*0.1)) #gets the last few samples plus 0.1 seconds of baseline
@@ -136,16 +140,29 @@ def get_mood(board, model, scaler, vectorizer, mood_num_samples, sfreq):
     eeg_data = data[eeg_channels[:4], :] / 1000000 #gets first four eeg channels in volts
     processed_eeg = eeg_data[:,eeg_data.shape[1]-mood_num_samples:] - np.mean(eeg_data[:,:eeg_data.shape[1]-mood_num_samples])
     sample = np.expand_dims(np.array(processed_eeg), 0)
-    print(sample.shape)
     sample = vectorizer.transform(scaler.transform(sample))
     #get predictions
     test_preds = model(torch.tensor(sample).float())
     max_pred = torch.argmax(test_preds).item()
-    MOOD = max_pred
-    return MOOD
+    mood = max_pred
+    return mood
 
-def get_direction(board):
-    return -1
+def get_direction(board, model, scaler, vectorizer, dir_num_samples, sfreq):
+    #get data
+    wait_time = int(math.ceil((dir_num_samples + math.ceil(sfreq*0.1))/sfreq))
+    time.sleep(wait_time) #sleep so that there are enough samples to feed into the model
+    data = board.get_current_board_data(math.ceil(dir_num_samples + sfreq*0.1)) #gets the last few samples plus 0.1 seconds of baseline
+    #process data
+    eeg_channels = BoardShim.get_eeg_channels(board_id)
+    eeg_data = data[eeg_channels[:4], :] / 1000000 #gets first four eeg channels in volts
+    processed_eeg = eeg_data[:,eeg_data.shape[1]-mood_num_samples:] - np.mean(eeg_data[:,:eeg_data.shape[1]-dir_num_samples])
+    sample = np.expand_dims(np.array(processed_eeg), 0)
+    sample = vectorizer.transform(scaler.transform(sample))
+    #get predictions
+    test_preds = model(torch.tensor(sample).float())
+    max_pred = torch.argmax(test_preds).item()
+    direction = max_pred
+    return direction
 
 #mood is either 0,1,2 (positive, neutral, negative)
 #nth_words refers to getting the nth and (n+1)th top words (e.g. if nth_words=0, 0th and 1st top words are returned)
@@ -197,8 +214,12 @@ def get_neg_words():
 
 @app.route('/get-direction')
 def get_direction_api():
-    time.sleep(2)
-    return {"direction":1}
+    global n_requests
+    direction = get_direction(board, dir_model, dir_scaler, dir_vectorizer, dir_num_samples, sfreq)
+    if direction == 0 or direction == 2:
+        print("Reset n_requests")
+        n_requests = 0
+    return {"direction":direction}
 
 @app.route('/get-mood')
 def get_mood_api():
@@ -219,7 +240,9 @@ def setup():
     global neg_lang_model
     global neg_tokenizer
     global neg_max_length
+
     board, board_id, sfreq = start_board()
+    dir_resp = load_dir_model()
     model_resp = load_mood_model()
 
     pos_data = pd.read_json(POS_DATA_FILE, lines=True)
@@ -231,11 +254,7 @@ def setup():
     neg_data = pd.read_json(NEG_DATA_FILE, lines=True)
     neg_lang_model, neg_tokenizer, neg_max_length = load_lang_model(NEG_MODEL_FILE, neg_data)
     
-    return {"board_id":board_id, "sfreq": sfreq, "model_load_success":model_resp}
-
-@app.route('/get-json')
-def get_json():
-    return str({"mood":MOOD, "direction":DIRECTION, "word_1":WORD_1, "word_2":WORD_2})
+    return {"board_id":board_id, "sfreq": sfreq, "model_load_success":model_resp, "direction_load_success":dir_resp}
 
 if __name__ == '__main__':
     # run app in debug mode on port 5000
