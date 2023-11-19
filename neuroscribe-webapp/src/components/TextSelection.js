@@ -58,7 +58,7 @@ function TextSelection({ mood }) {
 
   useEffect(() => {
     // Call simulateKeyPress to simulate the keypress based on fetched direction every 2 seconds
-    const intervalId = setInterval(simulateKeyPress, 3000);
+    const intervalId = setInterval(simulateKeyPress, 4000);
 
     // Cleanup function to clear the interval when the component unmounts
     return () => clearInterval(intervalId);
