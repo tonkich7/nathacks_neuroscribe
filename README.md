@@ -18,23 +18,24 @@ We aren’t creating static text, but emulating the different dimensions of inte
 Word selection will be completely hands free, as a third model will recognize imagined directional cues. The user will only need to imagine pushing the letter block on the screen "up," "down," "right," and " left," towards a selection, making the interface accessible for all levels of motor impairment.
 
 ## Presentation Slideshow
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/362a9dad-1558-4c24-84a9-a624a79bdbd6](https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b77a8129-67fc-44d1-9600-b83592cb77f9)https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b77a8129-67fc-44d1-9600-b83592cb77f9](https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b77a8129-67fc-44d1-9600-b83592cb77f9)https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b77a8129-67fc-44d1-9600-b83592cb77f9" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/41e94559-5355-4bca-9090-40323baf9733" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/5f17eb47-91eb-4f1b-a086-8839ee77d954" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/469cfa00-3e5e-4ab1-af73-9b1a66c8fc76" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/822407b3-b056-413b-8fd7-c51e87f4dc67" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b6ec7bcf-4cd5-466f-afe1-c992d83dbafd" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/008ec9bb-5cbd-444f-8d47-5b087b0f59b1" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/ac11b05d-33a3-4317-a768-cebf4728e1ff" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/1e26919b-5a7c-46de-887e-542dd5545d6a" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a27e9c8e-53a8-46bf-acae-22e079be4f06" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/72abbcd2-3b7d-4c80-bc6f-8327fc016505" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/27c00439-e91d-4dd4-89e4-2e6cb95fb477" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/fcd54c3a-d12a-47fb-b6af-fc8f1b004745" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/b2a04a25-bf9d-4a50-9a53-0aa104e13eed" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/1a293a04-a5e2-4275-aafe-311c68195dc3" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/a976ff58-411e-4981-bef6-9bd4891a815b" width="800" height="400">
 
-<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/fc6db59d-2344-433e-88c5-9dfe72f14d47" width="800" height="400">
+<img src="https://github.com/tonkich7/nathacks_neuroscribe/assets/100548563/87fac3c5-945f-4445-af39-4ed7fbb3c5f4" width="800" height="400">
+
 
 
 
