@@ -25,8 +25,8 @@ from flask import Flask, request
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-#MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
-MOOD_MODEL_FILE = "../mood_model"
+MOOD_MODEL_FILE = "/Users/alvinwu/Desktop/neuroscribe/nathacks_neuroscribe/mood_model"
+# MOOD_MODEL_FILE = "../mood_model"
 
 #json variables
 MOOD = -1
