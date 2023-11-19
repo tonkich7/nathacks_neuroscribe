@@ -7,8 +7,8 @@ models = importlib.import_module("mood-data-models")
 import numpy as np
 import math
 import mne
-import torch
 from flask_cors import CORS
+import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from mne.decoding import (

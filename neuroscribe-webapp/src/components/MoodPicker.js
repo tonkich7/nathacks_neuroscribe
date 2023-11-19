@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/ColorPicker.css';
 
 const MoodPicker = ({ onMoodDetermined }) => {
-  const [inputValue, setInputValue] = useState(5); 
+  const [inputValue, setInputValue] = useState(5);
   const [showLine, setShowLine] = useState(false);
+  const hasFetched = useRef(false); // useRef to track if data has been fetched
 
   // Function to fetch mood data from the Flask backend
   const fetchMoodData = async () => {
@@ -15,27 +16,19 @@ const MoodPicker = ({ onMoodDetermined }) => {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
           const data = await response.json();
-          console.log("HERE: ",data.mood) 
+          console.log("HERE: ", data.mood);
           resolve(data.mood); // Assuming the response format is {"mood":1}
         } catch (e) {
           console.error('Fetch failed:', e.message);
           reject(null); // Reject with null in case of error
         }
-      }, 4000); // Wait for 4 seconds before fetching
+      }, 2000); // Wait for 4 seconds before fetching
     });
   };
 
-
-  // const fetchMoodData = async () => {
-  //   return new Promise(resolve => {
-  //     setTimeout(() => {
-  //       resolve(0.6); 
-  //     }, 3000); 
-  //   });
-  // };
-
   useEffect(() => {
-    const getModelPrediction = async () => {
+    if (!hasFetched.current) { // Check if data has already been fetched
+      hasFetched.current = true; // Set to true to avoid refetching
       fetchMoodData()
         .then(moodValue => {
           if (moodValue !== null) {
@@ -49,11 +42,8 @@ const MoodPicker = ({ onMoodDetermined }) => {
           console.error('Error fetching mood data:', error);
           // Handle the error appropriately
         });
-    };
-    getModelPrediction();
-  }, []); // Empty dependency array to ensure this runs only once on component mount
-  
-  
+    }
+  }, []); // Empty dependency array
 
   const mood = inputValue === 5 ? "Detecting..." : inputValue === 0 ? "Positive" : inputValue === 1 ? "Neutral" : "Negative";
 
