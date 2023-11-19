@@ -122,7 +122,7 @@ def get_neg_words():
 @app.route('/get-direction')
 def get_direction_api():
     time.sleep(2)
-    return {"direction":0}
+    return {"direction":1}
 
 @app.route('/get-mood')
 def get_mood_api():

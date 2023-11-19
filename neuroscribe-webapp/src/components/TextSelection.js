@@ -3,105 +3,78 @@ import '../styles/TextSelection.css';
 
 function TextSelection({ mood }) {
   const [HappyList, setHappyList] = useState([]);
-  
-  console.log(mood)
+  const [currentSelections, setCurrentSelections] = useState(Array(7).fill(null));
+  const [boxesLocked, setBoxesLocked] = useState(Array(7).fill(false));
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  // Function to fetch new words and update HappyList
   const fetchWords = async () => {
-    setTimeout(async () => {
-      let url;
-      switch (mood) {
-        case 'Positive':
-          url = 'http://127.0.0.1:5000/get-positive-words';
-          console.log(url)
-          break;
-        case 'Negative':
-          url = 'http://127.0.0.1:5000/get-negative-words';
-          console.log(url)
-          break;
-        case 'Neutral':
-          url = 'http://127.0.0.1:5000/get-neutral-words';
-          console.log(url)
-          break;
-        default:
-          console.error("Invalid mood");
-          return;
-      }
-  
-      try {
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setHappyList([data.word_1, data.word_2]);
-      } catch (error) {
-        console.error("Error fetching words:", error);
-      }
-    }, 1000); // 1-second delay before fetch
-  };
-  
-  
-
-  // Function to simulate key press based on the model's output
-  const simulateKeyPress = (direction) => {
-    let keyCode;
-    switch (direction) {
-      case 'up':
-        keyCode = 38;
+    let url;
+    switch (mood) {
+      case 'Positive':
+        url = 'http://127.0.0.1:5000/get-positive-words';
         break;
-      case 'down':
-        keyCode = 40;
+      case 'Negative':
+        url = 'http://127.0.0.1:5000/get-negative-words';
         break;
-      case 'left':
-        keyCode = 37;
-        break;
-      case 'right':
-        keyCode = 39;
+      case 'Neutral':
+        url = 'http://127.0.0.1:5000/get-neutral-words';
         break;
       default:
-        return; // If the direction is not recognized, do nothing
+        console.error("Invalid mood");
+        return;
     }
-    handleKeyDown({ keyCode });
+
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setHappyList([data.word_1, data.word_2]);
+    } catch (error) {
+      console.error("Error fetching words:", error);
+    }
   };
 
-
   const handleKeyDown = (e) => {
-    const boxToChange = boxesLocked.findIndex(locked => !locked);
-    if (boxToChange === -1) return; // All boxes are locked
-  
+    if (currentIndex >= currentSelections.length) return; // Exit if all boxes are displayed
+
+    console.log('Handling key down:', e.keyCode);
+
     if (e.keyCode === 38) { // Up arrow key
-      setCurrentSelections(current => 
-        current.map((sel, index) => 
-          index === boxToChange ? HappyList[0] : sel
+      setCurrentSelections((current) =>
+        current.map((sel, index) =>
+          index === currentIndex ? HappyList[0] : sel
         )
       );
     } else if (e.keyCode === 40) { // Down arrow key
-      setCurrentSelections(current => 
-        current.map((sel, index) => 
-          index === boxToChange ? HappyList[1] : sel
+      setCurrentSelections((current) =>
+        current.map((sel, index) =>
+          index === currentIndex ? HappyList[1] : sel
         )
       );
-    } else if (e.keyCode === 39) { // Right arrow key to lock the box
-      setBoxesLocked(current => 
-        current.map((locked, index) => 
-          index === boxToChange ? true : locked
+    } else if (e.keyCode === 39) { // Right arrow key to lock the box and move to the next
+      setBoxesLocked((current) =>
+        current.map((locked, index) =>
+          index === currentIndex ? true : locked
         )
       );
-      fetchWords(); // Fetch new words after locking a box
+      setCurrentIndex((index) => index + 1);
     } else if (e.keyCode === 37) { // Left arrow key to change the option
-      fetchWords(); // Fetch new words when left arrow key is pressed
+      fetchWords();
     }
   };
-  
-  
-  
 
-  const [currentSelections, setCurrentSelections] = useState(Array(7).fill("ㅤ"));
-  const [boxesLocked, setBoxesLocked] = useState(Array(7).fill(false));
+  useEffect(() => {
+    fetchWords();
+  }, [mood]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, currentSelections, mood]);
 
   const boxColor = mood === 'Positive' ? '#ffdb5d' : mood === 'Negative' ? '#72f3f3' : '#FFFFFF';
-
   const selectionBoxStyle = {
     backgroundColor: boxColor,
     color: 'rgb(19, 20, 20)',
@@ -115,21 +88,12 @@ function TextSelection({ mood }) {
     marginTop: '2.2rem',
   };
 
-  useEffect(() => {
-    fetchWords();
-  }, [mood]);
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [boxesLocked, HappyList, mood]);
-
   return (
     <div className='text-select-container'>
       <div className='selections-container' style={{ display: 'flex' }}>
         {currentSelections.map((word, index) => (
           <div key={index} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {index <= boxesLocked.lastIndexOf(true) + 1 && (
+            {index <= currentIndex && (
               <>
                 <div style={selectionBoxStyle} className='selection-box-above'>{HappyList[0]}</div>
                 <div className="selection-box">
