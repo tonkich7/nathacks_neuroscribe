@@ -5,21 +5,35 @@ const MoodPicker = ({ onMoodDetermined }) => {
   const [inputValue, setInputValue] = useState(5); 
   const [showLine, setShowLine] = useState(false);
 
-  const wait = async () => {
-    return new Promise(resolve => {
-      setTimeout(() => {
-        resolve(0.5); 
-      }, 3000); 
+  // Function to fetch mood data from the Flask backend
+  const fetchMoodData = async () => {
+    return new Promise((resolve, reject) => {
+      setTimeout(async () => {
+        try {
+          const response = await fetch('http://127.0.0.1:5000/get-json');
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log("HERE: ",data.mood)
+          resolve(data.mood); // Assuming the response format is {"mood":1}
+        } catch (e) {
+          console.error('Fetch failed:', e.message);
+          reject(null); // Reject with null in case of error
+        }
+      }, 4000); // Wait for 4 seconds before fetching
     });
   };
 
   useEffect(() => {
     const getModelPrediction = async () => {
-      const result = await wait();
-      setInputValue(result);
-      setShowLine(true); 
-      const determinedMood = result > 0.5 ? "Positive" : result === 0.5 ? "Neutral" : "Negative";
-      onMoodDetermined(determinedMood); 
+      const moodValue = await fetchMoodData();
+      if (moodValue !== null) {
+        setInputValue(moodValue);
+        setShowLine(true); 
+        const determinedMood = moodValue > 0.5 ? "Positive" : moodValue === 0.5 ? "Neutral" : "Negative";
+        onMoodDetermined(determinedMood); 
+      }
     };
     getModelPrediction();
   }, [onMoodDetermined]);
