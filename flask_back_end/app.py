@@ -92,8 +92,11 @@ def get_mood(board, model, scaler, vectorizer, mood_num_samples, sfreq):
 def get_direction(board):
     return -1
 
-def get_words():
-    pass
+#mood is either 0,1,2 (positive, neutral, negative) and nth_words refers to getting the top 
+def get_words(mood, nth_words):
+    word_1 = ""
+    word_2 = ""
+    return word_1, word_2
 
 # create the Flask app
 app = Flask(__name__)
@@ -118,4 +121,4 @@ def get_json():
 
 if __name__ == '__main__':
     # run app in debug mode on port 5000
-    app.run(debug=True, port=3000)
+    app.run(debug=True, port=5000)
