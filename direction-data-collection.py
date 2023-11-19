@@ -12,7 +12,7 @@ import turtle
 BOARD_ID = 1 
 SYNTHETIC_BOARD_ID = -1
 SERIAL_PORT = 'COM8'
-NUM_SAMPLES_EACH = 25 #how many samples of each label should be gathered in the baseline step
+NUM_SAMPLES_EACH = 2 #how many samples of each label should be gathered in the baseline step
 SAMPLE_SECONDS = 3 #how many seconds of data should be gathered for each sample
 FILE_PATH = './experiment_data/direction_'
 
@@ -32,26 +32,33 @@ def run_experiment(board, board_id):
     time.sleep(SAMPLE_SECONDS)
 
     stimuli = [i+1 for i in range(NUM_DIRECTIONS) for j in range(NUM_SAMPLES_EACH)]
+    random.shuffle(stimuli)
 
     ttl = turtle.Turtle()
     screen=turtle.Screen()
-    screen.setup(400,500)
+    screen.setup(600,600)
     screen.bgcolor('white')
-    ttl.speed(1.2)
+    ttl.speed(1.5)
     ttl.shape('square')
-    ttl.pensize(6)
-       
-    #setting the size of the pen  
-    ttl.pensize(6)
+    ttl.turtlesize(5,5)
+    ttl.pensize(2)
     for stimulus in stimuli:
-        ttl.right(90)
+        ttl.hideturtle()
+        ttl.right(90*(stimulus-1))
+        ttl.showturtle()
         print(stimulus)
-        ttl.setpos(0,0)
-        ttl.pencolor('grey')   
+        ttl.pendown()
+        ttl.pencolor('grey')
+        ttl.color('black')
+        time.sleep(SAMPLE_SECONDS)
         ttl.forward(90)
         time.sleep(SAMPLE_SECONDS)
+        ttl.clear()
+        ttl.penup()
+        ttl.hideturtle()
         ttl.setpos(0,0)
-        ttl.pencolor('red')
+        ttl.showturtle()
+        ttl.color('red')
         #show animation of black rectangle moving in stimulus direction
         #return to center and change rectangle color to red
         board.insert_marker(stimulus) #insert label into stream
