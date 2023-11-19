@@ -157,6 +157,7 @@ def leave_one_out(X, y, epoch_info, alpha=1e-5, num_epochs=10, batch_size=5, reg
 def train_final_model(X, y, epoch_info, alpha=1e-5, num_epochs=10, batch_size=5, regularization=1e-5):
     scaler = Scaler(epoch_info)
     vectorizer = Vectorizer()
+    print(X.shape)
     X_scaled = scaler.fit_transform(X)
     X_vectorized = vectorizer.fit_transform(X_scaled)
     model = models.LinearModel(X.shape[1]*X.shape[2], y.shape[1])
@@ -190,8 +191,9 @@ def main():
     
     model, scaler, vectorizer, num_samples = train_final_model(X, one_hot_y, epochs.info, alpha=0.01, num_epochs=5, batch_size=5, regularization=0.001)
     print("Num_samples:", num_samples)
+    print("Num_samples per channel:", num_samples//4)
     with open("./mood_model", 'wb') as file:
-        pickle.dump((model, scaler, vectorizer, num_samples), file)
+        pickle.dump((model, scaler, vectorizer, num_samples//4), file)
         print("Successfully output mood_model")
 main()
 
