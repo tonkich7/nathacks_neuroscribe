@@ -37,6 +37,7 @@ WORD_2 = ""
 #global variables
 mood_model, mood_scaler, mood_vectorizer, mood_num_samples = None, None, None, None
 board, board_id, sfreq = None, None, None
+sentence, n_word_requests = "", 0
 
 def start_board():
     print("Starting board...")
@@ -117,6 +118,11 @@ def get_neut_words():
 @app.route('/get-negative-words')
 def get_neg_words():
     return {"word_1":"Man", "word_2":"The"}
+
+@app.route('/get-direction')
+def get_direction_api():
+    time.sleep(2)
+    return {"direction":0}
 
 @app.route('/get-mood')
 def get_mood_api():
